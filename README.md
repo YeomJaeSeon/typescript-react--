@@ -1,44 +1,39 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Typescript in React
 
-## Available Scripts
+### 1. 부모에게서 받은 Props를 하위컴포넌트에선 어떻게 받지?
 
-In the project directory, you can run:
+-> 부모에게서 받은 Props전부 Type Alias로 타입설정해서 지정해준다.
 
-### `npm start`
+### 2. 인자로 요소의 이벤트 객체를 받으면 어떻게 처리해?
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+-> 마우스 올리면 해당 요소의 이벤트 객체 타입이나와! -> 복붙하자.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### 3. Hook은 어떻게? useState, useReducer
 
-### `npm test`
+-> useState는 큰 차이는 없지만 제너릭으로 ```const [form, setForm] = <number>useState(0)``` 타입을 지정해줄순있다.
+null이 올수도 있으니 ```const [form, setForm] = <number | null>useState(null)``` 이런식으론 유용하단다.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+useReducer은 액션을 정의할때 type으로 정의하자!
+```
+type Action =
+  | { type: "ADD_TODO"; payload: { id: number; newTodo: string } }
+  | { type: "DELETE_TODO"; payload: { id: number } };
+```
+이런식으로 타입을 정의하면
+reducer함수의 인자인 action에 타입지정할수있다
 
-### `npm run build`
+```
+const reducer = (todos: { id: number; newTodo: string }[], action: Action) => {
+```
+참고로 객체 배열인 todos(state)에 타입지정하는 방법은 ```{key : type, ... }[] ```이다.
+여기서 의문점
+useReducer의 초기값이 빈배열이면? 
+(내가 헷갈렸던부분)
+당연히 위 타입을 패스한다.
+빈배열도 객체배열의 일종이다. 객체가 비면(객체 자체가 없으면) 빈배열이잖아.?
+근데 초기값이 ```[{}]``` 이렇게 빈배열안에 빈객체가있다..
+이러면 위의 타입을 패스하지못한다.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+빈객체가 있는 배열은 이미 빈배열이 아니다!
+```{id : number; newTodo: string}[]```와 ```[{}]```는 엄연히 다르다
+그치만 ```[]```는 패스한다!
